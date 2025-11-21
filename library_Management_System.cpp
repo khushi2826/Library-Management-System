@@ -1,4 +1,6 @@
 #include <iostream>
+#include<cctype>
+#include<cstring>
 //#include<conio>
 using namespace std;
 #include<iomanip>//input-output manipulator
@@ -7,6 +9,10 @@ using namespace std;
 #include<stdio.h>
 #include<fstream>
 #include<cstdlib>
+
+// Forward declaration for case-insensitive string comparison
+int strcmpi(const char* str1, const char* str2);
+
 class book
 {
 	char bno[6];//bookno.
@@ -18,10 +24,11 @@ class book
 		cout<<"\nNEW BOOK ENTRY...\n";
 		cout<<"\nENTER BOOK NO.";
 		cin>>bno;
+		cin.ignore();
 		cout<<"\nENTER BOOK NAME";
-		gets(bname);//enables enter with space
+		cin.getline(bname, 50);//enables enter with space
 		cout<<"\nENTER AUTHOR NAME";
-		gets(aname);
+		cin.getline(aname, 20);
 		cout<<"\n\n\nBook Created..";
 	}
 	void showbook()
@@ -36,9 +43,10 @@ class book
 	{
 		cout<<"\nBook Number: "<<bno;
 		cout<<"\nModify Book Name :";
-		gets(bname);
+		cin.ignore();
+		cin.getline(bname, 50);
 		cout<<"\nModify Author's Name :";
-		gets(aname);
+		cin.getline(aname, 20);
 		
 	}
 	
@@ -66,8 +74,9 @@ class student
 		cout<<"\nNEW STUDENT ENTRY...\n";
 		cout<<"\nEnter The Admission No. ";
 		cin>>admno;
+		cin.ignore();
 		cout<<"Enter The Student Name ";
-		gets(name);
+		cin.getline(name, 20);
 		token=0;
 		stbno[0]='\0';
 		cout<<"\n\nStudent Record Created...";
@@ -87,7 +96,8 @@ class student
 	{
 		cout<<"\nAdmission No. "<<admno;
 		cout<<"\nModify Student Name : ";
-		gets(name);
+		cin.ignore();
+		cin.getline(name, 20);
 	}
 	char* retadmno()
 	{
@@ -125,6 +135,17 @@ student st;//student class object
 void gotoxy(int x, int y) {
     // Move cursor to column x, row y
     cout << "\033[" << y << ";" << x << "H";
+}
+
+// Case-insensitive string comparison
+int strcmpi(const char* str1, const char* str2) {
+    while (*str1 && *str2) {
+        int diff = tolower(*str1) - tolower(*str2);
+        if (diff != 0) return diff;
+        str1++;
+        str2++;
+    }
+    return tolower(*str1) - tolower(*str2);
 }
 
 void writebook()
@@ -209,11 +230,11 @@ void modifybook()
 	{
 		if(strcmpi(bk.retbno(),n)==0)
 		{
-			bk.showbook();
-			cout<<"\nEnter the new details book";
-			bk.modifybook();
-			int pos=-1*sizeof(bk);
-			fp.seekp(pos,ios::cur);//back from current position
+		bk.showbook();
+		cout<<"\nEnter the new details book";
+		bk.modifybook();
+		int pos=-(int)sizeof(bk);
+		fp.seekp(pos,ios::cur);//back from current position
 			fp.write((char *)&bk,sizeof(book));
 			cout<<"\n\nRecord Updated";
 			found=1;
@@ -244,7 +265,7 @@ void modifybook()
 			st.showstudent();
 			cout<<"\nEnter the new details of student";
 			st.modifystudent();
-			int pos=-1*sizeof(st);
+			int pos=-(int)sizeof(st);
 			fp.seekp(pos,ios::cur);//back from current position
 			fp.write((char *)&st,sizeof(student)); 
 			cout<<"\n\nRecord Updated";
@@ -313,7 +334,7 @@ void modifybook()
 	 {
 		 if(strcmpi(bk.retbno(),n)!=0)
 		 {
-			 fp2.write((char*)&st,sizeof(book));
+			 fp2.write((char*)&bk,sizeof(book));
 		 }
 		 else{
 			 flag=1;//student found
@@ -398,11 +419,11 @@ void modifybook()
 			  {
 				   if(strcmpi(bk.retbno(),bn)==0)//compare book no.
 		             {
-			          flag=1;
-					  st.addtoken();
-					  st.getstbno(bk.retbno());//pass book no.
-					  int pos=-1*sizeof(st);
-					  fp.seekg(pos,ios::cur);
+		          flag=1;
+				  st.addtoken();
+				  st.getstbno(bk.retbno());//pass book no.
+				  int pos=-(int)sizeof(st);
+				  fp.seekg(pos,ios::cur);
 					  fp.write((char*)&st,sizeof(student));
 					  cout<<"\n\n\tBook Issued Successfully\n\n Please Note The Book Issue Date On Backside Of Your Book And Return Book Within 15 Days, Otherwise Fine Of 15 Rs Per Day";
 					  
@@ -470,7 +491,7 @@ void modifybook()
 					  }
 					  st.resettoken();
 					 
-					  int pos=-1*sizeof(st);
+					  int pos=-(int)sizeof(st);
 					  fp.seekg(pos,ios::cur);
 					  fp.write((char*)&st,sizeof(student));
 					  cout<<"\n\n\tBook Deposited Successfully";
@@ -576,9 +597,7 @@ void adminmenu()
 	}
 	adminmenu();
 } 
-void main()
-
-{ 
+int main(){ 
 char ch;
 system("clear");
 start();
@@ -606,6 +625,6 @@ do{
 	  cout<<"INVALID CHOICE"; 
 	  
 	}         
-}while(ch!=4 ); 
-
+}while(ch!='4' ); 
+return 0;
 }
